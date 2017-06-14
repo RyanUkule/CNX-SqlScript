@@ -1,6 +1,6 @@
 USE [cnx]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_LoadOrdersByStatusIds]    Script Date: 2017/06/13 17:57:41 ******/
+/****** Object:  StoredProcedure [dbo].[usp_LoadOrdersByStatusIds]    Script Date: 2017/06/14 12:57:49 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -14,8 +14,8 @@ GO
 -- ============================================= 
 ALTER PROCEDURE [dbo].[usp_LoadOrdersByStatusIds]    
 @customerId INT,    
-@assetTypeId INT, 
-@theOtherAssetTypeId INT = 1,  
+@assetTypeId_A INT, 
+@assetTypeId_B INT = 1,  
 @orderstatuslist XML,
 @orderType VARCHAR(10),  
 @orderstatusId INT      
@@ -79,7 +79,9 @@ BEGIN
 							   FROM OrderBook WITH (NOLOCK) 
 							   WHERE O.OrderId IN (StopLossOrderId ,TakeProfitOrderId))
 				 ,A.Notified
-				 ,O.OrderClassId   
+				 ,O.OrderClassId
+				 ,O.OfferAssetTypeId
+				 ,O.WantAssetTypeId
 		FROM CustomerOrder CO WITH(NOLOCK)    
 				INNER JOIN OrderBook O WITH (NOLOCK) ON CO.OrderId = CASE 
 				WHEN O.ParentOrderId IS NULL THEN 
@@ -92,8 +94,8 @@ BEGIN
 		WHERE EXISTS (SELECT Id FROM @CustomerOrderStatusId WHERE Id = CO.OrderStatusId)
 			    AND EXISTS (SELECT Id FROM @Ids WHERE O.OrderStatusId = Id)    
 				AND o.CustomerId = @customerId    
-				AND @assetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId)  
-				AND @theOtherAssetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId) 
+				AND @assetTypeId_A IN (o.[WantAssetTypeId] ,o.offerAssetTypeId)  
+				AND @assetTypeId_B IN (o.[WantAssetTypeId] ,o.offerAssetTypeId) 
 				AND o.OrderStatusId <>6    
 				AND (O.OrderTypeId=@orderTypeId OR @orderTypeId IS NULL)
 				AND (O.MarketOrder=@marketOrder OR @marketOrder IS NULL)    
@@ -125,7 +127,9 @@ BEGIN
 							   FROM OrderBook WITH (NOLOCK) 
 							   WHERE O.OrderId IN (StopLossOrderId,TakeProfitOrderId))
 				 ,A.Notified
-				 ,O.OrderClassId     
+				 ,O.OrderClassId
+				 ,O.OfferAssetTypeId
+				 ,O.WantAssetTypeId 
 		FROM CustomerOrder CO WITH(NOLOCK)       
 				INNER JOIN OrderBook O WITH (NOLOCK) ON CO.OrderId = CASE 
 				WHEN O.ParentOrderId IS NULL THEN 
@@ -138,8 +142,8 @@ BEGIN
 		WHERE EXISTS (SELECT Id FROM @CustomerOrderStatusId WHERE Id = CO.OrderStatusId)
 			    AND EXISTS (SELECT Id FROM @Ids WHERE O.OrderStatusId = Id)     
 				AND O.CustomerId = @customerId 
-				AND @assetTypeId IN (o.[WantAssetTypeId],o.offerAssetTypeId)
-				AND @theOtherAssetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId)
+				AND (@assetTypeId_A IN(o.[WantAssetTypeId],o.offerAssetTypeId))
+				AND (@assetTypeId_B IN (o.[WantAssetTypeId] ,o.offerAssetTypeId))
 				AND (O.OrderTypeId=@orderTypeId OR @orderTypeId IS NULL)    
 				AND (O.MarketOrder=@marketOrder OR @marketOrder IS NULL)
 				AND (O.OrderClassId=@orderClassId OR @orderClassId IS NULL) 
