@@ -14,7 +14,8 @@ GO
 -- ============================================= 
 ALTER PROCEDURE [dbo].[usp_LoadOrdersByStatusIds]    
 @customerId INT,    
-@assetTypeId INT,   
+@assetTypeId INT, 
+@theOtherAssetTypeId INT = 1,  
 @orderstatuslist XML,
 @orderType VARCHAR(10),  
 @orderstatusId INT      
@@ -92,6 +93,7 @@ BEGIN
 			    AND EXISTS (SELECT Id FROM @Ids WHERE O.OrderStatusId = Id)    
 				AND o.CustomerId = @customerId    
 				AND @assetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId)  
+				AND @theOtherAssetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId) 
 				AND o.OrderStatusId <>6    
 				AND (O.OrderTypeId=@orderTypeId OR @orderTypeId IS NULL)
 				AND (O.MarketOrder=@marketOrder OR @marketOrder IS NULL)    
@@ -136,7 +138,8 @@ BEGIN
 		WHERE EXISTS (SELECT Id FROM @CustomerOrderStatusId WHERE Id = CO.OrderStatusId)
 			    AND EXISTS (SELECT Id FROM @Ids WHERE O.OrderStatusId = Id)     
 				AND O.CustomerId = @customerId 
-				AND (@assetTypeId IN(o.[WantAssetTypeId],o.offerAssetTypeId))  
+				AND @assetTypeId IN (o.[WantAssetTypeId],o.offerAssetTypeId)
+				AND @theOtherAssetTypeId IN (o.[WantAssetTypeId] ,o.offerAssetTypeId)
 				AND (O.OrderTypeId=@orderTypeId OR @orderTypeId IS NULL)    
 				AND (O.MarketOrder=@marketOrder OR @marketOrder IS NULL)
 				AND (O.OrderClassId=@orderClassId OR @orderClassId IS NULL) 
