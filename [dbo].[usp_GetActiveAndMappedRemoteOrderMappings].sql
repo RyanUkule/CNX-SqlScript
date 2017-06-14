@@ -16,7 +16,7 @@ BEGIN
 		   r.[RemoteOrderId],
 		   r.[RemoteExecutePrice],
 		   r.[RemoteExecuteQuantity],
-		   r.[OrderTypeId],
+		   o.[OrderTypeId],
 		   r.[OfferAssetTypeId],
 		   r.[WantAssetTypeId],
 		   r.[RemoteOrderMappingStatusId],
