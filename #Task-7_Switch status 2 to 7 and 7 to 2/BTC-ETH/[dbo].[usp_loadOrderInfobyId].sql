@@ -28,7 +28,8 @@ BEGIN
 	SELECT TOP 1
 	   C.[OrderId]
 	  ,o.[OrderTypeId]
-	  ,CASE WHEN o.[WantAssetTypeId] = 1 THEN o.OfferAssetTypeId ELSE o.[WantAssetTypeId] END AssetTypeId  
+	  ,o.OfferAssetTypeId
+	  ,o.WantAssetTypeId
       ,o.Quantity
       ,o.Price
       ,c.[OrderStatusId]  
@@ -57,7 +58,10 @@ BEGIN
   LEFT JOIN CustomerOrder c WITH (NOLOCK) ON c.OrderId = CASE WHEN o.ParentOrderId IS NULL THEN o.OrderId ELSE o.ParentOrderId END  
   LEFT JOIN [AdvancedOrderProperties] T WITH (NOLOCK) ON o.OrderId = T.OrderId  
   LEFT JOIN [AssetType_lkp] at WITH (NOLOCK) 
-		ON at.AssetTypeId IN (o.WantAssetTypeId ,o.OfferAssetTypeId) AND at.AssetTypeId <> 1  
+		ON at.AssetTypeId =(
+			CASE WHEN o.OrderTypeId = 1 THEN o.WantAssetTypeId
+				WHEN o.OrderTypeId = 2 THEN o.OfferAssetTypeId
+			END) 
   WHERE @orderId IN (o.OrderId,o.ParentOrderId) AND o.OriginalOrderId IS NULL
   ORDER BY o.UpdateDate DESC
   
