@@ -21,13 +21,13 @@ ALTER PROCEDURE [dbo].[usp_LoadOrdersByStatusIds]
 @orderstatusId INT      
 AS    
 BEGIN    
-	/* OrderBook×´Ì¬¼¯ºÏ*/  
+	/* OrderBookçŠ¶æ€é›†åˆ*/  
 	DECLARE @Ids TABLE ([Id] INT);
 	INSERT INTO @Ids([Id])					
 	SELECT X.C.value('Id[1]','int') AS Id  
 	FROM @orderstatuslist.nodes('Root/Parameter') AS X(C);
 
-	/* CustomerOrder×´Ì¬¼¯ºÏ*/  
+	/* CustomerOrderçŠ¶æ€é›†åˆ*/ 
 	DECLARE @CustomerOrderStatusId TABLE ([Id] INT);
     IF(@orderstatusId=110)--Open
 	BEGIN
