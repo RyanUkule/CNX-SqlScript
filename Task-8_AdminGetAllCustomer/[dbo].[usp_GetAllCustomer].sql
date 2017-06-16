@@ -78,12 +78,12 @@ BEGIN
 		LEFT JOIN VerificationDocument vd ON c.CustomerId = vd.CustomerId
 		left join (SELECT [CustomerId],[value] FROM [CustomerPreference] where Preferenceid = 39 ) cp on cp.CustomerId = C.CustomerId
 		WHERE 
-		(CAST(c.CustomerId as nvarchar(20)) = @complex OR C.UserName = @complex OR C.Email = @complex OR C.Mobile = @complex OR @complex IS NULL OR @complex = '')
+		(CAST(c.CustomerId as nvarchar(20)) = @complex OR C.UserName like '%' + @complex + '%' OR C.Email like '%' + @complex + '%' OR C.Mobile like '%' + @complex + '%' OR @complex IS NULL OR @complex = '')
 		AND (C.CustomerId = @CustomerId or @CustomerId is null  or @CustomerId ='')		
 		AND (C.IsAccountApproved = @isAccountApprove OR @isAccountApprove=-1 OR (@isAccountApprove=2 AND C.IsAccountApproved IS NULL) )
-		AND (C.Email = @email or @email IS NULL OR @email = '')
-		AND (C.UserName = @username OR vd.RealName = @username  or @username is null or @username = '')
-		AND (C.Mobile = @mobile or @mobile is null or @mobile = '')
+		AND (C.Email like '%' + @email + '%' or @email IS NULL OR @email = '')
+		AND (C.UserName like '%' + @username + '%' OR vd.RealName like '%' + @username + '%'  or @username is null or @username = '')
+		AND (C.Mobile like '%' + @mobile + '%' or @mobile is null or @mobile = '')
 		AND (C.AccountIsFrozen = CASE @status WHEN 2 THEN 0 ELSE @status END OR @status IS NULL OR @status ='')
 		AND (w.IsConfirmed=CASE @status WHEN 2 THEN 0 ELSE 1 END  OR @status IS NULL OR @status ='')
 		AND (C.LanguageCode = @languageCode OR @languageCode IS NULL OR @languageCode = '')
