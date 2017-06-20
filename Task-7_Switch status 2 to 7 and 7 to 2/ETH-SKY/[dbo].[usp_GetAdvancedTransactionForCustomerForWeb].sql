@@ -1,6 +1,6 @@
 USE [cnx]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_GetAdvancedTransactionForCustomerForWeb]    Script Date: 2017/06/16 15:48:17 ******/
+/****** Object:  StoredProcedure [dbo].[usp_GetAdvancedTransactionForCustomerForWeb]    Script Date: 2017/06/19 11:05:17 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -246,9 +246,10 @@ BEGIN
            CASE
 		   WHEN o.WantAssetTypeId = 2 AND o.OfferAssetTypeId = 5 THEN 'ETH/BTC'
 		   WHEN o.WantAssetTypeId = 2 AND o.OfferAssetTypeId = 1 THEN 'CNY/BTC'
-		   WHEN o.WantAssetTypeId = 5 THEN 'CNY/ETH'
+		   WHEN o.WantAssetTypeId = 5 AND o.OfferAssetTypeId = 1 THEN 'CNY/ETH'
            WHEN o.WantAssetTypeId = 6 THEN 'CNY/ETC'
-           WHEN o.WantAssetTypeId = 7 THEN 'CNY/SKY'
+           WHEN o.WantAssetTypeId = 7 AND o.OfferAssetTypeId = 1 THEN 'CNY/SKY'
+		   WHEN o.WantAssetTypeId = 7 AND o.OfferAssetTypeId = 5 THEN 'ETH/SKY'
            ELSE null
            END AS [Pair],
 
@@ -265,14 +266,14 @@ BEGIN
            CASE WHEN o.OfferAssetTypeId = 1 then at.A_CNYBalance end AS 'CNY Balance',
 
            CASE
-           WHEN o.WantAssetTypeId = 2 and o.OfferAssetTypeId <> 5 THEN at.A_Balance
-		   WHEN o.WantAssetTypeId = 2 and o.WantAssetTypeId = 5 THEN at.A_CNYBalance
+           WHEN o.WantAssetTypeId = 2 THEN at.A_Balance
            ELSE null
            END
              AS 'BTC Balance',
 
            CASE
-           WHEN o.WantAssetTypeId = 5 or (o.WantAssetTypeId = 2 and o.OfferAssetTypeId = 5) THEN at.A_Balance
+           WHEN o.WantAssetTypeId = 5 THEN at.A_Balance
+		   WHEN o.OfferAssetTypeId = 5 THEN at.A_CNYBalance
            ELSE null
            END
              AS 'ETH Balance',
@@ -285,6 +286,7 @@ BEGIN
 
            CASE
            WHEN o.WantAssetTypeId = 7 THEN at.A_Balance
+		   WHEN o.OfferAssetTypeId = 7 THEN at.A_CNYBalance
            ELSE null
            END
              AS 'SKY Balance',
@@ -332,9 +334,10 @@ BEGIN
            CASE
 		   WHEN o.OfferAssetTypeId = 2 AND o.WantAssetTypeId = 1 THEN 'CNY/BTC'
            WHEN o.OfferAssetTypeId = 2 AND o.WantAssetTypeId = 5 THEN 'ETH/BTC'
-           WHEN o.OfferAssetTypeId = 5 THEN 'CNY/ETH'
+           WHEN o.OfferAssetTypeId = 5 AND o.WantAssetTypeId = 1 THEN 'CNY/ETH'
            WHEN o.OfferAssetTypeId = 6 THEN 'CNY/ETC'
-           WHEN o.OfferAssetTypeId = 7 THEN 'CNY/SKY'
+           WHEN o.OfferAssetTypeId = 7 AND o.WantAssetTypeId = 1 THEN 'CNY/SKY'
+		   WHEN o.OfferAssetTypeId = 7 AND o.WantAssetTypeId = 5 THEN 'ETH/SKY'
            ELSE null
            END AS [Pair],
            CONVERT(VARCHAR(50), o.Price) AS [Order Price],
@@ -350,14 +353,14 @@ BEGIN
            CASE WHEN o.WantAssetTypeId = 1 then at.B_CNYBalance end AS 'CNY Balance',
 
            CASE
-           WHEN o.OfferAssetTypeId = 2 and o.WantAssetTypeId <> 5 THEN at.B_Balance
-		   WHEN o.OfferAssetTypeId = 2 and o.WantAssetTypeId = 5 THEN at.B_CNYBalance
+           WHEN o.OfferAssetTypeId = 2 and o.WantAssetTypeId = 1 THEN at.B_Balance
+		   WHEN o.OfferAssetTypeId = 2 and o.WantAssetTypeId <> 1 THEN at.B_CNYBalance
            ELSE null
            END
              AS 'BTC Balance',
 
            CASE
-           WHEN o.OfferAssetTypeId = 5 or (o.OfferAssetTypeId = 2 and o.WantAssetTypeId = 5) THEN at.B_Balance
+           WHEN o.OfferAssetTypeId = 5 or WantAssetTypeId = 5 THEN at.B_Balance
            ELSE null
            END
              AS 'ETH Balance',
@@ -369,7 +372,8 @@ BEGIN
              AS 'ETC Balance',
 
            CASE
-           WHEN o.OfferAssetTypeId = 7 THEN at.B_Balance
+           WHEN o.OfferAssetTypeId = 7 and o.WantAssetTypeId = 1 THEN at.B_Balance
+		   WHEN o.OfferAssetTypeId = 7 and o.WantAssetTypeId <> 1 THEN at.B_CNYBalance
            ELSE null
            END
              AS 'SKY Balance',
