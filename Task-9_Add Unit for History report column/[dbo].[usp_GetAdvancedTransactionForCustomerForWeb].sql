@@ -69,8 +69,11 @@ BEGIN
            ELSE null
            END
              AS 'SKY Balance',
-
-           v.AssetTypeId as AssetTypeId
+	   
+		   v.AssetTypeId as AssetTypeId,
+	   
+           v.AssetTypeId AS OfferAssetTypeId,
+		   null AS WantAssetTypeId
 		   --AssetType_lkp.Symbol QSymbol,
 		   --null PSymbol
 
@@ -136,8 +139,11 @@ BEGIN
            ELSE null
            END
              AS 'SKY Balance',
-
-           tr.AssetTypeId as AssetTypeId
+	   
+	       tr.AssetTypeId as AssetTypeId,
+	   
+           tr.AssetTypeId AS OfferAssetTypeId,
+		   null AS WantAssetTypeId
 		   --null QSymbol,
 		   --null PSymbol
 
@@ -205,8 +211,11 @@ BEGIN
            ELSE null
            END
              AS 'SKY Balance',
-
-           tr.AssetTypeId as AssetTypeId
+	   
+	       tr.AssetTypeId as AssetTypeId,
+	   
+           tr.AssetTypeId AS OfferAssetTypeId,
+		   null AS WantAssetTypeId
 		   --null QSymbol,
 		   --null PSymbol
 
@@ -293,12 +302,16 @@ BEGIN
            ELSE null
            END
              AS 'SKY Balance',
-
-           CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
+	     
+		   CASE
+		   WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
            WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
            ELSE null
            END
-             AS AssetTypeId
+             AS AssetTypeId,
+	     
+           o.OfferAssetTypeId AS OfferAssetTypeId,
+		   o.WantAssetTypeId AS WantAssetTypeId
 		   --null QSymbol,
 		   --null PSymbol
 
@@ -384,11 +397,15 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
+	       CASE
+		   WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
            WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
            ELSE null
            END
-             AS AssetTypeId
+             AS AssetTypeId,
+
+           o.OfferAssetTypeId AS OfferAssetTypeId,
+		   o.WantAssetTypeId AS WantAssetTypeId
 		   --null QSymbol,
 		   --null PSymbol
 
