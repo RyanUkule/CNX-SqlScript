@@ -1,6 +1,6 @@
 USE [cnx]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_GetAdvancedTransactionForCustomerForWeb]    Script Date: 2017/06/19 11:05:17 ******/
+/****** Object:  StoredProcedure [dbo].[usp_GetAdvancedTransactionForCustomerForWeb]    Script Date: 2017/06/22 14:42:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -70,9 +70,9 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           --v.AssetTypeId as AssetTypeId
-		   AssetType_lkp.Symbol QSymbol,
-		   null PSymbol
+           v.AssetTypeId as AssetTypeId
+		   --AssetType_lkp.Symbol QSymbol,
+		   --null PSymbol
 
          FROM Voucher as v with (nolock)
            INNER JOIN AssetType_lkp with (nolock) ON v.AssetTypeId = AssetType_lkp.AssetTypeId
@@ -137,16 +137,16 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           --tr.AssetTypeId as AssetTypeId
-		   atlQ.Symbol QSymbol,
-		   null PSymbol
+           tr.AssetTypeId as AssetTypeId
+		   --null QSymbol,
+		   --null PSymbol
 
          FROM TransferRequest as tr with (nolock)
            INNER JOIN RequestType_lkp with (nolock) ON tr.RequestTypeId = RequestType_lkp.RequestTypeId
            INNER JOIN AdvancedTransaction as at with (nolock) ON tr.RequestId = at.TransferRequestId
            LEFT JOIN BitcoinAddress ba WITH (NOLOCK) ON tr.BitcoinAddressId = ba.BitcoinAddressId
            LEFT JOIN BankTransaction bt WITH (NOLOCK) ON tr.BankTransactionId = bt.BankTransactionId
-		   LEFT JOIN AssetType_lkp atlQ with (nolock) ON tr.AssetTypeId = atlQ.AssetTypeId
+		   --LEFT JOIN AssetType_lkp atlQ with (nolock) ON tr.AssetTypeId = atlQ.AssetTypeId
 
          -- customer filter
          where tr.CustomerId = @customerId
@@ -206,16 +206,16 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           --tr.AssetTypeId as AssetTypeId
-		   atlQ.Symbol QSymbol,
-		   null PSymbol
+           tr.AssetTypeId as AssetTypeId
+		   --null QSymbol,
+		   --null PSymbol
 
          FROM TransferRequest as tr with (nolock)
            INNER JOIN RequestType_lkp with (nolock) ON tr.RequestTypeId = RequestType_lkp.RequestTypeId
            INNER JOIN AdvancedTransaction as at with (nolock) ON tr.RequestId = at.TransferRequestId
            LEFT JOIN BitcoinAddress ba WITH (NOLOCK) ON tr.BitcoinAddressId = ba.BitcoinAddressId
            LEFT JOIN BankTransaction bt WITH (NOLOCK) ON tr.BankTransactionId = bt.BankTransactionId
-		   LEFT JOIN AssetType_lkp atlQ with (nolock) ON tr.AssetTypeId = atlQ.AssetTypeId
+		   --LEFT JOIN AssetType_lkp atlQ with (nolock) ON tr.AssetTypeId = atlQ.AssetTypeId
 
          -- customer filter
          where tr.CustomerId = @customerId
@@ -260,7 +260,10 @@ BEGIN
            CONVERT(VARCHAR(50), t.B_Commission) AS [Commission],
 		    
 		   --
-		   CONVERT(VARCHAR(50), (t.A_Amount + t.A_Commission) / (t.B_Amount + t.B_Commission)) AS ExecutionPrice,
+		   CASE WHEN (t.B_Amount + t.B_Commission) = 0 THEN '0'
+				ELSE 
+					CONVERT(VARCHAR(50), (t.A_Amount + t.A_Commission) / (t.B_Amount + t.B_Commission))
+				END AS ExecutionPrice,
            'N/A' AS [Address],
 
            CASE WHEN o.OfferAssetTypeId = 1 then at.A_CNYBalance end AS 'CNY Balance',
@@ -291,19 +294,19 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           --CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
-           --WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
-           --ELSE null
-           --END
-           --  AS AssetTypeId
-		   atlQ.Symbol QSymbol,
-		   atlP.Symbol PSymbol
+           CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
+           WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
+           ELSE null
+           END
+             AS AssetTypeId
+		   --null QSymbol,
+		   --null PSymbol
 
          FROM [Transaction] as t with (nolock)
            INNER JOIN AdvancedTransaction as at with (nolock) on at.TransactionId = t.TransactionId
            INNER JOIN OrderBook as o with (nolock) ON o.OrderId = t.A_OrderId
-		   LEFT JOIN AssetType_lkp atlQ WITH (NOLOCK) ON atlQ.AssetTypeId = o.WantAssetTypeId
-		   LEFT JOIN AssetType_lkp atlP WITH (NOLOCK) ON atlP.AssetTypeId = o.OfferAssetTypeId
+		   --LEFT JOIN AssetType_lkp atlQ WITH (NOLOCK) ON atlQ.AssetTypeId = o.WantAssetTypeId
+		   --LEFT JOIN AssetType_lkp atlP WITH (NOLOCK) ON atlP.AssetTypeId = o.OfferAssetTypeId
          -- customer filter
          where o.CustomerId = @customerId
                -- startdate filter
@@ -347,7 +350,10 @@ BEGIN
 		   (t.B_Amount + t.B_Commission) AS [Quantity],
            CONVERT(VARCHAR(50), t.A_Amount) AS [Amount],
            CONVERT(VARCHAR(50), t.A_Commission) AS [Commission],
-		   CONVERT(VARCHAR(50), (t.A_Amount + t.A_Commission) / (t.B_Amount + t.B_Commission)) AS ExecutionPrice,
+		   CASE WHEN (t.B_Amount + t.B_Commission) = 0 THEN '0'
+				ELSE 
+					CONVERT(VARCHAR(50), (t.A_Amount + t.A_Commission) / (t.B_Amount + t.B_Commission)) 
+				END AS ExecutionPrice,
            'N/A' AS [Address],
 
            CASE WHEN o.WantAssetTypeId = 1 then at.B_CNYBalance end AS 'CNY Balance',
@@ -378,19 +384,19 @@ BEGIN
            END
              AS 'SKY Balance',
 
-           --CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
-           --WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
-           --ELSE null
-           --END
-           --  AS AssetTypeId
-		   atlQ.Symbol QSymbol,
-		   atlP.Symbol PSymbol
+           CASE WHEN o.WantAssetTypeId = 1 THEN o.OfferAssetTypeId
+           WHEN o.WantAssetTypeId <> 1 THEN o.WantAssetTypeId
+           ELSE null
+           END
+             AS AssetTypeId
+		   --null QSymbol,
+		   --null PSymbol
 
          FROM [Transaction] as t with (nolock)
            INNER JOIN AdvancedTransaction as at with (nolock) on at.TransactionId = t.TransactionId
            INNER JOIN OrderBook as o with (nolock) ON o.OrderId = t.B_OrderId
-		   LEFT JOIN AssetType_lkp atlQ WITH (NOLOCK) ON atlQ.AssetTypeId = o.WantAssetTypeId
-		   LEFT JOIN AssetType_lkp atlP WITH (NOLOCK) ON atlP.AssetTypeId = o.OfferAssetTypeId
+		   --LEFT JOIN AssetType_lkp atlQ WITH (NOLOCK) ON atlQ.AssetTypeId = o.WantAssetTypeId
+		   --LEFT JOIN AssetType_lkp atlP WITH (NOLOCK) ON atlP.AssetTypeId = o.OfferAssetTypeId
          -- customer filter
          where o.CustomerId = @customerId
                -- startdate filter
@@ -410,6 +416,8 @@ BEGIN
 
   -- Create temporary table from result
   SELECT * INTO #temp FROM (SELECT * FROM PageNumbers) AS b
+
+  CREATE INDEX index_RowId ON #temp(ROWID);
 
   -- Select result set
   SELECT * FROM #temp with (nolock)
