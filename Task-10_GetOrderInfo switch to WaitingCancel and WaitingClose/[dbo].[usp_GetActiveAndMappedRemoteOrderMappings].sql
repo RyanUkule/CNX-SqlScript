@@ -23,7 +23,8 @@ BEGIN
 		   r.[Message],
 		   r.[Retry],
 		   r.[InsertDate],
-		   r.[UpdateDate]
+		   r.[UpdateDate],
+		   o.[OrderStatusId]
 	FROM RemoteOrderMappings r WITH(NOLOCK)
 	INNER JOIN OrderBook o WITH(NOLOCK) ON r.OrderId = o.OrderId
 	WHERE r.RemoteOrderMappingStatusId = 8 
