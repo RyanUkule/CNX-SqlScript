@@ -24,7 +24,7 @@ BEGIN
 	FROM OrderBook o WITH(NOLOCK)
 	LEFT JOIN RemoteOrderMappings r WITH(NOLOCK)
 	ON o.OrderId = r.OrderId
-	WHERE (OrderStatusId = 2 OR OrderStatusId = 7) AND CustomerId <> 2 AND (r.RemoteOrderMappingStatusId in (6,7,8,12) OR r.RemoteOrderMappingStatusId IS NULL);
+	WHERE (OrderStatusId = 2 OR OrderStatusId = 7) AND CustomerId <> 2 AND (r.RemoteOrderMappingStatusId in (3,6,7,8,12) OR r.RemoteOrderMappingStatusId IS NULL);
 
 	SELECT 
 		OrderId,
