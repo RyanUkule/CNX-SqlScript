@@ -10,8 +10,8 @@ CREATE PROCEDURE [dbo].[usp_UpdateOrderBookStatusAndRemoteOrderMappingsStatus]
 	@orderIds XML,
 	@orderBookStatusId INT,
 	@remoteOrderMappingsStatusId INT,
-	@statusUpdatedBy INT, -- CustomerId, 0è¡¨ç¤ºç³»ç»Ÿæ“ä½œã€‚
-	@updateReason NVARCHAR(500), --æœåŠ¡å, éœ€æ±‚å
+	@statusUpdatedBy INT, -- CustomerId, 0±íÊ¾ÏµÍ³²Ù×÷¡£
+	@updateReason NVARCHAR(500), --·þÎñÃû, ÐèÇóÃû
 	@comment NVARCHAR(500) = null
 )
 AS
@@ -47,7 +47,7 @@ BEGIN
 	select @OrderIdsStr = @OrderIdsStr+','+rtrim(Id) from @t_OrderId
 	set @OrderIdsStr = case when len(@OrderIdsStr)>0 then stuff(@OrderIdsStr,1,1,'') else @OrderIdsStr end
 	
-	SET @where = ' from orderbook with (nolock) where OrderId in ( ' + dbo.f_MosaicStrint(@OrderIdsStr)+ ' )';
+	SET @where = ' from orderbook with (nolock) where OrderId in ( ' + @OrderIdsStr+ ' )';
 	exec usp_CreateOrderStatusHistory 0, @orderBookStatusId, @statusUpdatedBy, @updateReason, NULL, NULL, 
 	NULL, @comment, @where
 
