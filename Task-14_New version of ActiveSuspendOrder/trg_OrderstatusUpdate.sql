@@ -16,7 +16,8 @@ ALTER TRIGGER [dbo].[trg_OrderstatusUpdate]
 AS 
 BEGIN
 	declare @TargetstatusId int,@orderId int, @customerId int,
-			@originalorderid int, @orderstatusid int, @oriorderstatusid int, @deleteOrderStatusId int
+			@originalorderid int, @orderstatusid int, @oriorderstatusid int, @deleteOrderStatusId int,
+			@originalQuantity decimal(18,8), @completedAmount decimal(18,8)
 	select @deleteOrderStatusId = OrderstatusId from Deleted
 	select @TargetstatusId = OrderstatusId, @orderId = OrderId, @customerId = customerid from Inserted
 --	if(@orderId is not null)
@@ -37,7 +38,9 @@ BEGIN
 								   else @orderId end from orderbook with (nolock) 
 	where OrderId = @orderId 
 
-	select @orderstatusid = orderstatusid from customerorder with (nolock) 
+	select @originalQuantity = Quantity from OrderBook with(nolock) where OrderId = @originalorderid
+
+	select @orderstatusid = orderstatusid , @completedAmount = CompletedAmount from customerorder with (nolock) 
 	where OrderId = @originalorderid 
 
 	declare @OrderId_tmp int
@@ -63,6 +66,11 @@ BEGIN
 			end
 			else if(@TargetstatusId in (2) and @orderstatusid in (1,7))
 			begin
+				if(@completedAmount > 0 and @completedAmount < @originalQuantity)
+				begin
+					set @TargetstatusId = 3
+				end
+
 				update CustomerOrder set OrderStatusId = @TargetstatusId,  UpdateDate = getdate()
 				where OrderId = @originalorderid 
 			end
