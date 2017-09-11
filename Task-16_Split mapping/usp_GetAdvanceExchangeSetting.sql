@@ -14,7 +14,7 @@ BEGIN
 		[ExchangeSettingId],
 		[BuyoffsetFormula],
 		[SelloffsetFormula],
-		[AllowTransfer]
+		[AllowTransfer],
 		[TransferAssetTypeId]
 	from [AdvanceExchangeSetting]
 END
