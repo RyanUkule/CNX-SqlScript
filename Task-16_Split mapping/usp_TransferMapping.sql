@@ -9,7 +9,7 @@ GO
 Author: Ryan.Han
 Create Date: 2017/09/06
 **************************/
-CREATE PROCEDURE [dbo].[usp_TransferMapping]
+ALTER PROCEDURE [dbo].[usp_TransferMapping]
 (
 	@mappingId INT,
 	@newExecutePrice DECIMAL(18, 8),
@@ -20,10 +20,11 @@ AS
 BEGIN
 	DECLARE @newMappingId INT
 	
-	--Insert a new mapping
+	--Clone a new mapping
 	INSERT INTO RemoteOrderMappings(OrderId, ExecutePrice, Quantity,RemoteExchangeId, OrderTypeId, OfferAssetTypeId, WantAssetTypeId, RemoteOrdermappingStatusId, InsertDate, UpdateDate)
 	SELECT OrderId, @newExecutePrice, Quantity,RemoteExchangeId, OrderTypeId, @offerAssetTypeId, @wantAssetTypeId, RemoteOrdermappingStatusId, GETDATE(), GETDATE()
 	FROM RemoteOrderMappings
+	WHERE RemoteOrderMappingsId = @mappingId
 
 	SELECT @newMappingId = SCOPE_IDENTITY()
 
