@@ -40,9 +40,9 @@ begin try
 		if exists(select VoucherId from Voucher with (nolock) where VoucherId = @voucherId and IsRedeemed = 1)
 		begin
 		print 'test1'
-			select @IssuedCNYBalance = Balance from AssetBalance with (nolock) where CustomerId = @IssueCustomerId and AssetTypeId = 1
+			select @IssuedCNYBalance = Balance from AssetBalance with (nolock) where CustomerId = @IssueCustomerId and AssetTypeId = 11
 			select @IssuedBTCBalance = Balance from AssetBalance with (nolock) where CustomerId = @IssueCustomerId and (AssetTypeId = case isNull(@AssetTypeId,-1) when -1 then AssetTypeId else @AssetTypeId end )
-			select @RedeemedCNYBalance = Balance from AssetBalance with (nolock) where CustomerId = @RedeemCustomerId and AssetTypeId = 1
+			select @RedeemedCNYBalance = Balance from AssetBalance with (nolock) where CustomerId = @RedeemCustomerId and AssetTypeId = 11
 			select @RedeemedBTCBalance = Balance from AssetBalance with (nolock) where CustomerId = @RedeemCustomerId and (AssetTypeId = case isNull(@AssetTypeId,-1) when -1 then AssetTypeId else @AssetTypeId end )
 
 			insert into AdvancedTransaction([VoucherId], [TransactionType], [A_CNYBalance], [A_Balance], [B_CNYBalance], [B_Balance])

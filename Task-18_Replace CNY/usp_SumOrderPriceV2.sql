@@ -13,11 +13,11 @@ BEGIN
 
 SET NOCOUNT ON;	
 declare @UsedCNY decimal(18,8), @UsedBTC decimal(18,8), @UsedETH decimal(18,8), @UsedETC decimal(18,8), @UsedSKY decimal(18,8), @UsedBCC decimal(18,8)
-,@UsedSHL decimal(18,8),@UsedZEC decimal(18, 8),
+,@UsedSHL decimal(18,8),@UsedZEC decimal(18, 8),@UsedDRG decimal(18,8),
 @SumSky decimal(18,8),@SumShl decimal(18,8)
 
---CNY 
-select @UsedCNY = sum(case when MarketOrder = 0 then Price * Quantity when MarketOrder = 1 then Price end) 
+--DRG 
+select @UsedDRG = sum(case when MarketOrder = 0 then Price * Quantity when MarketOrder = 1 then Price end) 
 from OrderBook WITH (nolock) where OrderId in (select case when OriginalOrderId is null then OrderId else OriginalOrderId end 
 	from [dbo].[OrderBook] WITH (nolock) where [CustomerId]=@customerId and 
 	[OrderStatusId] in(2,10,12) and [OrderTypeId]=1 and [OfferAssetTypeId]=11)
@@ -114,7 +114,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 --select @SumSKY = sum(Quantity) from OrderBook WITH (nolock) 
 --where [OrderStatusId] in (4) and [OrderTypeId]=2 and [OfferAssetTypeId]=7
 
-select isnull(@UsedCNY,0) as CNY,isnull(@UsedBTC,0) AS BTC ,isnull(@UsedETH,0) AS ETH, 
+select isnull(@UsedDRG,0) as DRG,isnull(@UsedBTC,0) AS BTC ,isnull(@UsedETH,0) AS ETH, 
 	   isnull(@UsedETC,0) AS ETC, isnull(@UsedSKY,0) AS SKY, ISNULL(@UsedSHL, 0) AS SHL, ISNULL(@UsedBCC, 0) AS BCC, 
 	   ISNULL(@UsedZEC,0) AS ZEC,
 	   isnull(@SumSKY,0) as SumSKY, isnull(@SumSHL,0) as SumSHL
