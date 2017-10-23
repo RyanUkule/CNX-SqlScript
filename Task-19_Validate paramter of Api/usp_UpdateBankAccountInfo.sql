@@ -26,5 +26,7 @@ BEGIN
 		where CreateBy = @CustomerId and BankAccountInfoId <> @BankAccountInfoId
 	end
 	
+	select count(*) from BankAccountInfo 
+	where CreateBy = @CustomerId and BankAccountInfoId = @BankAccountInfoId
 END
 
