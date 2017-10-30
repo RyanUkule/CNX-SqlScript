@@ -10,4 +10,6 @@ as
 begin
    Update [CustomerTickets] set [TicketStatusId]=@TicketStatuId ,UpdateDate=getDate() where [CreateBy]=@CreateBy and TicketId=@TicketId
 
+   SELECT COUNT(*) FROM [CustomerTickets]
+   WHERE [CreateBy]=@CreateBy and TicketId=@TicketId
 end
