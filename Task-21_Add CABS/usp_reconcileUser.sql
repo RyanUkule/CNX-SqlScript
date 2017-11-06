@@ -15,9 +15,9 @@ ALTER PROCEDURE [dbo].[usp_reconcileUser]
 AS
 BEGIN
 declare @CNYBalance decimal(18,8), @BTCBalance decimal(18,8), @ETHBalance decimal(18,8),@ETCBalance decimal(18,8) ,
-@SKYBalance decimal(18,8),@SHLBalance decimal(18,8),@BCCBalance decimal(18,8),@DRGBalance decimal(18,8),@BTGBalance decimal(18,8) 
+@SKYBalance decimal(18,8),@SHLBalance decimal(18,8),@BCCBalance decimal(18,8),@DRGBalance decimal(18,8),@BTGBalance decimal(18,8), @CABSBalance decimal(18, 8) 
 declare @UsedCNY decimal(18,8), @UsedBTC decimal(18,8), @UsedETH decimal(18,8),@UsedETC decimal(18,8), @UsedSKY decimal(18,8),
-@UsedSHL decimal(18,8),@UsedBCC decimal(18,8),@UsedDRG decimal(18,8),@UsedBTG decimal(18,8)
+@UsedSHL decimal(18,8),@UsedBCC decimal(18,8),@UsedDRG decimal(18,8),@UsedBTG decimal(18,8), @UsedCABS decimal(18, 8)
 
 -- CNY
 select @CNYBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 1
@@ -261,8 +261,28 @@ select @BTGBalance = @BTGBalance - isnull(sum(B_Amount + B_Commission),0) from [
 left join OrderBook O1 with(nolock) on T.B_OrderId = O1.OrderId 
 where O1.CustomerId = @CustomerId and O1.OrderTypeId = 2 and OfferAssetTypeId = 13
 
+--CABS
+select @CABSBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 12
+select @UsedCABS = isnull(SUM(value),0) from Voucher with(nolock) where IsRedeemed = 1 and IssuedByCustomerId = @CustomerId and AssetTypeId = 12
+set @CABSBalance  = @CABSBalance - @UsedCABS
+-- Deposit btc
+select @CABSBalance = @CABSBalance + isnull(sum(Amount),0) from TransferRequest with (nolock)
+where Customerid = @CustomerId and RequestTypeId = 22 and RequestStatusId = 3
+--withdrawal
+select @CABSBalance = @CABSBalance - isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where CustomerId = @CustomerId and RequestTypeId = 23 and RequestStatusId = 3
+--buy
+select @CABSBalance = @CABSBalance  + isnull(sum(B_Amount),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.A_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 1 and WantAssetTypeId = 12 
+--sell
+select @CABSBalance = @CABSBalance - isnull(sum(B_Amount + B_Commission),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 12
+
 declare @CurrentCNY decimal(18,8), @CurrentBTC decimal(18,8), @CurrentETH decimal(18,8),@CurrentETC decimal(18,8),
-@CurrentSKY decimal(18,8),@CurrentSHL decimal(18,8),@CurrentBCC decimal(18,8),@CurrentDRG decimal(18,8),@CurrentBTG decimal(18,8)
+@CurrentSKY decimal(18,8),@CurrentSHL decimal(18,8),@CurrentBCC decimal(18,8),@CurrentDRG decimal(18,8),@CurrentBTG decimal(18,8),
+@CurrentCABS decimal(18, 8)
 select  @CurrentCNY = balance from AssetBalance with (nolock) where CustomerId = @customerId AND AssetTypeId = 1
 select  @CurrentBTC = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 2
 select  @CurrentETH = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 5
@@ -271,6 +291,7 @@ select  @CurrentSKY = balance from AssetBalance with (nolock) where customerid	=
 select  @CurrentSHL = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 8
 select  @CurrentBCC = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =9
 select  @CurrentDRG = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =11
+select  @CurrentCABS = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =12
 select  @CurrentBTG = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =13
 
 
@@ -290,6 +311,7 @@ Insert into @t values (7,@CurrentSKY,@SKYBalance,@CurrentSKY - @SKYBalance)
 Insert into @t values (8,@CurrentSHL,@SHLBalance,@CurrentSHL - @SHLBalance)
 Insert into @t values (9,@CurrentBCC,@BCCBalance,@CurrentBCC - @BCCBalance)
 Insert into @t values (11,@CurrentDRG,@DRGBalance,@CurrentDRG - @DRGBalance)
+Insert into @t values (12,@CurrentCABS,@CABSBalance,@CurrentCABS - @CABSBalance)
 Insert into @t values (13,@CurrentBTG,@BTGBalance,@CurrentBTG - @BTGBalance)
 select * from @t
 END
