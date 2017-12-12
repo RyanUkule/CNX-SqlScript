@@ -15,30 +15,37 @@ ALTER PROCEDURE [dbo].[usp_GetCustomerById]
 AS
 BEGIN
 	SELECT 
-	CustomerId,
-	Name,
-	UpdateDate,
-	InsertDate,
-	SaveDate,
-	UserName,
-	Email,
-	Mobile,
-	AllowMarginTrades,
-	MaximumMarginRatio,
-	TradingPackageId,
-	LanguageCode,
-	AccountIsFrozen,
-	ChatUpdateTime,
-	IsAccountApproved,
-	IsAdvanceApprove
+		CustomerId
+		,Name
+		,UpdateDate
+		,InsertDate
+		,SaveDate
+		,UserName
+		,Email
+		,Mobile
+		,AllowMarginTrades
+		,MaximumMarginRatio
+		,TradingPackageId
+		,LanguageCode
+		,AccountIsFrozen
+		,ChatUpdateTime
+		,IsAccountApproved
+		,IsAdvanceApprove
 	from Customer with (nolock)
 	where CustomerId = @customerid
+
+	SELECT m.[UserId]
+	  ,r.RoleId
+	  ,[CreateDate]
+	  ,[ConfirmationToken]
+	  ,[IsConfirmed]
+	  ,[LastPasswordFailureDate]
+	  ,[PasswordFailuresSinceLastSuccess]
+	  ,[Password]
+	  ,[PasswordChangedDate]
+	  ,[PasswordSalt]
+	  ,[PasswordVerificationToken]
+	  ,[PasswordVerificationTokenExpirationDate]
+	  FROM [cnx].[dbo].[webpages_Membership] m with(nolock) LEFT JOIN webpages_UsersInRoles R ON r.UserId=m.UserId
+	  where m.UserId = @customerid
 END
-
-
-
-
-
-
-
-

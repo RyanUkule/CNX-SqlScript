@@ -17,8 +17,9 @@ ALTER PROCEDURE [dbo].[usp_GetICOActiveOrder]
 AS
 BEGIN
 	select 
-	   [OrderId]
-      ,[CustomerId]
+	   O.[OrderId]
+      ,O.[CustomerId]
+	  ,C.[UserName]
       ,[OrderTypeId]
       ,[OfferAssetTypeId]
       ,[WantAssetTypeId]
@@ -30,16 +31,17 @@ BEGIN
       ,[ExpirationDate]
       ,[TakeProfitOrderId]
       ,[StopLossOrderId]
-      ,[UpdateDate]
-      ,[InsertDate]
-      ,[SaveDate]
+      ,o.[UpdateDate]
+      ,O.[InsertDate]
+      ,O.[SaveDate]
       ,[RemoteExchangeId]
       ,[RemoteExchangeOrderNumber]
       ,[ParentOrderId]
       ,[OrderClassId]
       ,[IsTakeOrder]
-	from OrderBook with (nolock) 
-	where 
-	OrderId in (select OrderId from CoinTokenOrderMapping with (nolock) where TokenId = @tokenId)
-	and OrderStatusId = 2
+	from OrderBook O with (nolock) 
+	inner join CoinTokenOrderMapping M with (nolock) on O.OrderId= M.OrderId
+	left join Customer C with (nolock) on o.CustomerId = c.CustomerId
+	where TokenId = @tokenId
+		and OrderStatusId = 2
 END
