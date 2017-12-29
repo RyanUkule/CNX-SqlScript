@@ -16,9 +16,9 @@ AS
 BEGIN
 declare @CNYBalance decimal(18,8), @BTCBalance decimal(18,8), @ETHBalance decimal(18,8),@ETCBalance decimal(18,8) ,
 @SKYBalance decimal(18,8),@SHLBalance decimal(18,8),@BCCBalance decimal(18,8),@DRGBalance decimal(18,8),@BTGBalance decimal(18,8), 
-@CABSBalance decimal(18, 8), @FCABSBalance decimal(18, 8) 
+@CABSBalance decimal(18, 8), @FCABSBalance decimal(18, 8), @USDTBalance decimal(18,8) 
 declare @UsedCNY decimal(18,8), @UsedBTC decimal(18,8), @UsedETH decimal(18,8),@UsedETC decimal(18,8), @UsedSKY decimal(18,8),
-@UsedSHL decimal(18,8),@UsedBCC decimal(18,8),@UsedDRG decimal(18,8),@UsedBTG decimal(18,8), @UsedCABS decimal(18, 8), @UsedFCABS decimal(18, 8)
+@UsedSHL decimal(18,8),@UsedBCC decimal(18,8),@UsedDRG decimal(18,8),@UsedBTG decimal(18,8), @UsedCABS decimal(18, 8), @UsedFCABS decimal(18, 8), @UsedUSDT decimal(18,8)
 
 -- CNY
 select @CNYBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 1
@@ -39,6 +39,25 @@ where O1.CustomerId = @CustomerId and O1.OrderTypeId = 1 and O1.offerAssetTypeId
 select @CNYBalance = @CNYBalance + isnull(sum(A_Amount),0) from [Transaction]  T with(nolock)  
 left join OrderBook O1 with(nolock) on T.B_OrderId = O1.OrderId 
 where O1.CustomerId = @CustomerId and O1.OrderTypeId = 2 and O1.wantAssetTypeId = 1
+
+-- USDT
+select @USDTBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 15
+select @UsedUSDT = isnull(SUM(value),0) from Voucher with(nolock) where IsRedeemed = 1 and IssuedByCustomerId = @CustomerId and AssetTypeId = 15
+set @USDTBalance  = @USDTBalance - @UsedUSDT
+-- Deposit CNY
+select @USDTBalance = @USDTBalance + isnull(sum(Amount),0) from TransferRequest with (nolock)
+where Customerid = @CustomerId and RequestTypeId = 28 and RequestStatusId = 3
+--withdrawal
+select @USDTBalance = @USDTBalance - isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where CustomerId = @CustomerId and RequestTypeId = 29 and RequestStatusId = 3
+--buy
+select @USDTBalance = @USDTBalance -isnull(sum(A_Amount + A_Commission),0) from [Transaction]  T with(nolock)  
+left join OrderBook O1 with(nolock) on T.A_OrderId = O1.OrderId 
+where O1.CustomerId = @CustomerId and O1.OrderTypeId = 1 and O1.offerAssetTypeId = 15
+--sell
+select @USDTBalance = @USDTBalance + isnull(sum(A_Amount),0) from [Transaction]  T with(nolock)  
+left join OrderBook O1 with(nolock) on T.B_OrderId = O1.OrderId 
+where O1.CustomerId = @CustomerId and O1.OrderTypeId = 2 and O1.wantAssetTypeId = 15
 
 --BTC
 select @BTCBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 2
@@ -328,7 +347,7 @@ where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and WantAssetTypeId = 14
 
 declare @CurrentCNY decimal(18,8), @CurrentBTC decimal(18,8), @CurrentETH decimal(18,8),@CurrentETC decimal(18,8),
 @CurrentSKY decimal(18,8),@CurrentSHL decimal(18,8),@CurrentBCC decimal(18,8),@CurrentDRG decimal(18,8),@CurrentBTG decimal(18,8),
-@CurrentCABS decimal(18, 8), @CurrentFCABS decimal(18, 8)
+@CurrentCABS decimal(18, 8), @CurrentFCABS decimal(18, 8), @CurrentUSDT decimal(18,8)
 select  @CurrentCNY = balance from AssetBalance with (nolock) where CustomerId = @customerId AND AssetTypeId = 1
 select  @CurrentBTC = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 2
 select  @CurrentETH = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 5
@@ -340,6 +359,7 @@ select  @CurrentDRG = balance from AssetBalance with(nolock) where customerid = 
 select  @CurrentCABS = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =12
 select  @CurrentBTG = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =13
 select  @CurrentFCABS = balance from AssetBalance with(nolock) where customerid = @customerId and assettypeId =14
+select @CurrentUSDT = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 15
 
 declare @t table
 (
@@ -360,5 +380,6 @@ Insert into @t values (11,@CurrentDRG,@DRGBalance,@CurrentDRG - @DRGBalance)
 Insert into @t values (12,@CurrentCABS,@CABSBalance,@CurrentCABS - @CABSBalance)
 Insert into @t values (13,@CurrentBTG,@BTGBalance,@CurrentBTG - @BTGBalance)
 Insert into @t values (14,@CurrentFCABS,@FCABSBalance,@CurrentFCABS - @FCABSBalance)
+Insert into @t values (15,@CurrentUSDT,@USDTBalance,@CurrentUSDT - @USDTBalance)
 select * from @t
 END

@@ -13,7 +13,7 @@ BEGIN
 
 SET NOCOUNT ON;	
 declare @UsedCNY decimal(18,8), @UsedBTC decimal(18,8), @UsedETH decimal(18,8), @UsedETC decimal(18,8), @UsedSKY decimal(18,8), @UsedBCC decimal(18,8)
-,@UsedSHL decimal(18,8),@UsedZEC decimal(18, 8),@UsedDRG decimal(18,8),@UsedCABS decimal(18,8),
+,@UsedSHL decimal(18,8),@UsedZEC decimal(18, 8),@UsedDRG decimal(18,8),@UsedCABS decimal(18,8),@UsedUSDT decimal(18,8),
 @SumSky decimal(18,8),@SumShl decimal(18,8),@SumCabs decimal(18,8)
 
 --DRG 
@@ -23,9 +23,18 @@ from OrderBook WITH (nolock) where OrderId in (select case when OriginalOrderId 
 	[OrderStatusId] in(2,10,12) and [OrderTypeId]=1 and [OfferAssetTypeId]=11)
 	and customerId <> 2
 
+--USDT
+select @UsedUSDT = sum(
+			case when MarketOrder = 0 then Price * Quantity 
+				 when MarketOrder = 1 then Price end) 
+from OrderBook WITH (nolock) where OrderId in (select case when OriginalOrderId is null then OrderId else OriginalOrderId end 
+	from [dbo].[OrderBook] WITH (nolock) where [CustomerId]=@customerId and 
+	[OrderStatusId] in(2,10,12) and [OrderTypeId]=1 and [OfferAssetTypeId]=15)
+	and customerId <> 2
+
 --BTC
 select @UsedBTC = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end) 
@@ -37,7 +46,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --ETH
 select @UsedETH = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end) 
@@ -49,7 +58,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --ETC
 select @UsedETC = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end)
@@ -61,7 +70,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --SKY
 select @UsedSKY = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end)
@@ -73,7 +82,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --SHL
 select @UsedSHL = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end)
@@ -86,7 +95,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --BCC
 select @UsedBCC = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end)
@@ -98,7 +107,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --ZEC
 select @UsedZEC = sum(
-			case when WantAssetTypeId <> 11 
+			case when WantAssetTypeId <> 11 and WantAssetTypeId <> 15
 					then Quantity * Price
 				else Quantity
 			end)
@@ -110,7 +119,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 --CABS
 select @UsedCABS = sum(
-			case when WantAssetTypeId <> 12 
+			case when WantAssetTypeId <> 11 
 					then Quantity * Price
 				else Quantity
 			end)
@@ -128,7 +137,7 @@ where OrderId in (select case when OriginalOrderId is null then OrderId else Ori
 
 select isnull(@UsedDRG,0) as DRG,isnull(@UsedBTC,0) AS BTC ,isnull(@UsedETH,0) AS ETH, 
 	   isnull(@UsedETC,0) AS ETC, isnull(@UsedSKY,0) AS SKY, ISNULL(@UsedSHL, 0) AS SHL, ISNULL(@UsedBCC, 0) AS BCC, 
-	   ISNULL(@UsedZEC,0) AS ZEC, ISNULL(@UsedCABS,0) AS CABS, 
+	   ISNULL(@UsedZEC,0) AS ZEC, ISNULL(@UsedCABS,0) AS CABS, ISNULL(@UsedUSDT, 0) AS USDT,
 	   isnull(@SumSKY,0) as SumSKY, isnull(@SumSHL,0) as SumSHL, isnull(@SumCABS,0) as SumCABS
 END
 
