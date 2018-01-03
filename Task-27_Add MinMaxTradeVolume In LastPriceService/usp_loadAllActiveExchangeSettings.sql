@@ -38,7 +38,9 @@ BEGIN
 		  [ExchangeSetting].[Symbol],
 		  [ExchangeSetting].QuantityDigit,
 		  [ExchangeSetting].BuyConvertRate,
-		  [ExchangeSetting].SellConvertRate
+		  [ExchangeSetting].SellConvertRate,
+		  [ExchangeSetting].MinOnTradeVolume,
+		  [ExchangeSetting].MaxOnTradeVolume
 	  FROM [cnx].[dbo].[ExchangeSetting] with (nolock)
 	  left join Exchanges with(nolock) on ExchangeSetting.ExchangeId = Exchanges.ExchangeId
 	  where [ExchangeSetting].Active = 1 and Exchanges.Active = 1
