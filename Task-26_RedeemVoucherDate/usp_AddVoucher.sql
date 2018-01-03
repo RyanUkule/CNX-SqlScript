@@ -15,11 +15,12 @@ ALTER PROCEDURE [dbo].[usp_AddVoucher]
 @IsCanceled bit,
 @AssetTypeId int,
 @note nvarchar(50) = null,
-@CampaigmId int = null
+@CampaigmId int = null,
+@AllowRedeemDate datetime
 AS
 BEGIN
 	Insert into Voucher(VoucherId, RedemptionCodeHash, Value, IssuedByCustomerId, IsRedeemed, RedeemedByCustomerId, 
-		IsCanceled, AssetTypeId, UpdateDate, InsertDate, SaveDate, Note, CampaignId)
+		IsCanceled, AssetTypeId, UpdateDate, InsertDate, SaveDate, Note, CampaignId, AllowRedeemDate)
 	values(@VoucherId, @RedemptionCodeHash, @Value, @IssuedByCustomerId, @IsRedeemed, @RedeemedByCustomerId, 
-		@IsCanceled, @AssetTypeId, GETDATE(), GETDATE(), GETDATE(),@note, @CampaigmId)
+		@IsCanceled, @AssetTypeId, GETDATE(), GETDATE(), GETDATE(),@note, @CampaigmId, @AllowRedeemDate)
 END

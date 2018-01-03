@@ -21,15 +21,25 @@ AS
 BEGIN
 begin tran
 begin try
-	declare @AassetTypeId int = null, @BassetTypeId int = null
+	declare @AassetTypeId int = null, @BassetTypeId int = null, @AllowRedeemDate datetime = null
 
 	select @AassetTypeId = AssetTypeId from AssetBalance 
 	where customerId = @RedeemCustomerId and AssetTypeId = @AssetTypeId --and ([hash]=@oldredeemHash or [hash] is null)
 	select @BassetTypeId = AssetTypeId from AssetBalance 
 	where customerId = @IssueCustomerId and AssetTypeId = @AssetTypeId --and ([hash]=@oldassignHash or [hash] is null)
+	select @AllowRedeemDate = AllowRedeemDate  from Voucher where VoucherId = @voucherId
+
 	if(@AassetTypeId is not null and @BassetTypeId is not null)
 	begin
-		Update AssetBalance set Balance = Balance + @value,UpdateDate = @updateDate, [Hash] = @redeemHash
+		Update AssetBalance 
+			set 
+				Balance = Balance + @value,
+				FrozenBalance = case when @AllowRedeemDate is not null and @AllowRedeemDate > GETDATE()
+										then FrozenBalance + @value
+									 else FrozenBalance
+								end,
+				UpdateDate = @updateDate, 
+				[Hash] = @redeemHash
 		where customerId = @RedeemCustomerId and AssetTypeId = @AssetTypeId --and ([hash]=@oldredeemHash or [hash] is null)
 
 		Update AssetBalance set Balance =  Balance - @value , FrozenBalance = FrozenBalance - @value, updateDate = @updateDate, [hash] = @assignHash
