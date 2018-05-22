@@ -1,0 +1,248 @@
+use CNX
+GO
+--TradingPackage
+--OMG
+insert into tradingpackages(
+	AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	Symbol,
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+)
+select 
+	case when AssetTypeId = 0 
+		then 0
+		else 29
+	end as AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	REPLACE(Symbol,'TNB', 'XLM'),
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+from tradingpackages where symbol like '%TNB%'
+
+------------------------
+*****	BTC 	******
+------------------------
+--1.BTC_ETC
+insert into tradingpackages(
+	AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	Symbol,
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+)
+select 
+	0,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	'BTC_ETC',
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+from tradingpackages where symbol = 'USDT_ETC'
+
+--2.BTC_LTC
+insert into tradingpackages(
+	AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	Symbol,
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+)
+select 
+	0,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	'BTC_LTC',
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+from tradingpackages where symbol = 'USDT_LTC'
+
+--3.BTC_BTG
+insert into tradingpackages(
+	AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	Symbol,
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+)
+select 
+	0,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	'BTC_BTG',
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+from tradingpackages where symbol = 'USDT_BTG'
+
+--4.BTC_ZEC
+insert into tradingpackages(
+	AssetTypeId,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	Symbol,
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+)
+select 
+	0,
+	BtcTransferConfirmations,
+	DepositCommission,
+	DepositCommissionChargeLimit,
+	IsActive,
+	MarginInterest,
+	MarginRatio,
+	MinWithdrawalCommission,
+	Name,
+	PackageUID,
+	StopLossCommision,
+	StopLossWarning,
+	'BTC_ZEC',
+	TakeProfitCommission,
+	TakeProfitReminder,
+	TextResourceId,
+	TradingMakerCommission,
+	TradingTakerCommission,
+	TriggerCommission,
+	TriggerOrder,
+	WithdrawalCommission
+from tradingpackages where symbol = 'USDT_ZEC'
