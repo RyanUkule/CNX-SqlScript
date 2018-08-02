@@ -18,16 +18,15 @@ declare @CNYBalance decimal(18,8), @BTCBalance decimal(18,8), @ETHBalance decima
 @SKYBalance decimal(18,8),@SHLBalance decimal(18,8),@BCCBalance decimal(18,8),@DRGBalance decimal(18,8),@BTGBalance decimal(18,8), 
 @CABSBalance decimal(18, 8), @FCABSBalance decimal(18, 8), @USDTBalance decimal(18,8), @ZECBalance decimal(18,8), @LTCBalance decimal(18,8),
 @DASHBalance decimal(18, 8), @ZRXBalance decimal(18, 8), @FUNBalance decimal(18,8), @TNBBalance decimal(18,8), @ETPBalance decimal(18,8),
-@UCASHBalance decimal(18, 8), @CCOINBalance decimal(18, 8), 
-@OMGBalance decimal(18, 8), @RCNBalance decimal(18, 8), @XRPBalance decimal(18, 8), @EOSBalance decimal(18, 8), @WAXBalance decimal(18, 8),
-@XLMBalance decimal(18, 8)
+@UCASHBalance decimal(18, 8), @CCOINBalance decimal(18, 8), @OMGBalance decimal(18, 8), @RCNBalance decimal(18, 8), @XRPBalance decimal(18, 8), 
+@EOSBalance decimal(18, 8), @WAXBalance decimal(18, 8),@XLMBalance decimal(18, 8), @TRIABalance decimal(18, 8), @BEZBalance decimal(18, 8),
+@SLRMBalance decimal(18, 8)
 declare @UsedCNY decimal(18,8), @UsedBTC decimal(18,8), @UsedETH decimal(18,8),@UsedETC decimal(18,8), @UsedSKY decimal(18,8),
 @UsedSHL decimal(18,8),@UsedBCC decimal(18,8),@UsedDRG decimal(18,8),@UsedBTG decimal(18,8), @UsedCABS decimal(18, 8), 
 @UsedFCABS decimal(18, 8), @UsedUSDT decimal(18,8), @UsedZEC decimal(18,8), @UsedLTC decimal(18,8),
 @UsedDASH decimal(18, 8), @UsedZRX decimal(18, 8), @UsedFUN decimal(18,8), @UsedTNB decimal(18,8), @UsedETP decimal(18,8),
-@UsedUCASH decimal(18,8), @UsedCCOIN decimal(18, 8), 
-@UsedOMG decimal(18, 8), @UsedRCN decimal(18, 8), @UsedXRP decimal(18, 8), @UsedEOS decimal(18, 8), @UsedWAX decimal(18, 8),
-@UsedXLM decimal(18, 8)
+@UsedUCASH decimal(18,8), @UsedCCOIN decimal(18, 8), @UsedOMG decimal(18, 8), @UsedRCN decimal(18, 8), @UsedXRP decimal(18, 8), @UsedEOS decimal(18, 8), 
+@UsedWAX decimal(18, 8),@UsedXLM decimal(18, 8), @UsedTRIA decimal(18, 8), @UsedBEZ decimal(18, 8), @UsedSLRM decimal(18, 8)
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- CNY
 select @CNYBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 1
@@ -595,13 +594,70 @@ select @XLMBalance = @XLMBalance - isnull(sum(B_Amount + B_Commission),0) from [
 left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId 
 where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 29
 ----------------------------------------------------------------------------------------------------------------------------------------------
+--TRIA
+select @TRIABalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 30
+select @UsedTRIA = isnull(SUM(value),0) from Voucher with(nolock) where VoucherStatusId = 3 and IssuedByCustomerId = @CustomerId and AssetTypeId = 30
+set @TRIABalance  = @TRIABalance - @UsedTRIA
+-- Deposit
+select @TRIABalance = @TRIABalance + isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where Customerid = @CustomerId and RequestTypeId = 56 and RequestStatusId = 3
+--withdrawal
+select @TRIABalance = @TRIABalance - isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where CustomerId = @CustomerId and RequestTypeId = 57 and RequestStatusId = 3
+--buy
+select @TRIABalance = @TRIABalance  + isnull(sum(B_Amount),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.A_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 1 and WantAssetTypeId = 30 
+--sell
+select @TRIABalance = @TRIABalance - isnull(sum(B_Amount + B_Commission),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 30
+----------------------------------------------------------------------------------------------------------------------------------------------
+--BEZ
+select @BEZBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 31
+select @UsedBEZ = isnull(SUM(value),0) from Voucher with(nolock) where VoucherStatusId = 3 and IssuedByCustomerId = @CustomerId and AssetTypeId = 31
+set @BEZBalance  = @BEZBalance - @UsedBEZ
+-- Deposit
+select @BEZBalance = @BEZBalance + isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where Customerid = @CustomerId and RequestTypeId = 56 and RequestStatusId = 3
+--withdrawal
+select @BEZBalance = @BEZBalance - isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where CustomerId = @CustomerId and RequestTypeId = 57 and RequestStatusId = 3
+--buy
+select @BEZBalance = @BEZBalance  + isnull(sum(B_Amount),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.A_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 1 and WantAssetTypeId = 31 
+--sell
+select @BEZBalance = @BEZBalance - isnull(sum(B_Amount + B_Commission),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 31
+----------------------------------------------------------------------------------------------------------------------------------------------
+--SLRM
+select @SLRMBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 32
+select @UsedSLRM = isnull(SUM(value),0) from Voucher with(nolock) where VoucherStatusId = 3 and IssuedByCustomerId = @CustomerId and AssetTypeId = 32
+set @SLRMBalance  = @SLRMBalance - @UsedSLRM
+-- Deposit
+select @SLRMBalance = @SLRMBalance + isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where Customerid = @CustomerId and RequestTypeId = 56 and RequestStatusId = 3
+--withdrawal
+select @SLRMBalance = @SLRMBalance - isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
+where CustomerId = @CustomerId and RequestTypeId = 57 and RequestStatusId = 3
+--buy
+select @SLRMBalance = @SLRMBalance  + isnull(sum(B_Amount),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.A_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 1 and WantAssetTypeId = 32 
+--sell
+select @SLRMBalance = @SLRMBalance - isnull(sum(B_Amount + B_Commission),0) from [Transaction]  T with(nolock)  
+left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId 
+where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 32
+----------------------------------------------------------------------------------------------------------------------------------------------
 declare @CurrentCNY decimal(18,8), @CurrentBTC decimal(18,8), @CurrentETH decimal(18,8),@CurrentETC decimal(18,8),
 @CurrentSKY decimal(18,8),@CurrentSHL decimal(18,8),@CurrentBCC decimal(18,8),@CurrentDRG decimal(18,8),@CurrentBTG decimal(18,8),
 @CurrentCABS decimal(18, 8), @CurrentFCABS decimal(18, 8), @CurrentUSDT decimal(18,8), @CurrentZEC decimal(18,8), @CurrentLTC decimal(18,8),
 @CurrentDASH decimal(18, 8), @CurrentZRX decimal(18, 8), @CurrentFUN decimal(18,8), @CurrentTNB decimal(18,8), @CurrentETP decimal(18,8),
-@CurrentUCASH decimal(18, 8), @CurrentCCOIN decimal(18, 8)
-, @CurrentOMG decimal(18, 8), @CurrentRCN decimal(18, 8), @CurrentXRP decimal(18, 8)
-, @CurrentEOS decimal(18, 8), @CurrentWAX decimal(18, 8), @CurrentXLM decimal(18, 8)
+@CurrentUCASH decimal(18, 8), @CurrentCCOIN decimal(18, 8), @CurrentOMG decimal(18, 8), @CurrentRCN decimal(18, 8), @CurrentXRP decimal(18, 8),
+@CurrentEOS decimal(18, 8), @CurrentWAX decimal(18, 8), @CurrentXLM decimal(18, 8), @CurrentTRIA decimal(18, 8), @CurrentBEZ decimal(18, 8),
+@CurrentSLRM decimal(18, 8)
 
 select  @CurrentCNY = balance from AssetBalance with (nolock) where CustomerId = @customerId AND AssetTypeId = 1
 select  @CurrentBTC = balance from AssetBalance with (nolock) where customerid	= @customerId and assettypeid = 2
@@ -630,6 +686,9 @@ select @CurrentXRP = balance from AssetBalance with(nolock) where CustomerId = @
 select @CurrentEOS = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 26
 select @CurrentWAX = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 28
 select @CurrentXLM = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 29
+select @CurrentTRIA = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 30
+select @CurrentBEZ = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 31
+select @CurrentSLRM = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 32
 
 declare @t table
 (
@@ -666,6 +725,9 @@ Insert into @t values (25,@CurrentXRP,@XRPBalance,@CurrentXRP - @XRPBalance)
 Insert into @t values (26,@CurrentEOS,@EOSBalance,@CurrentEOS - @EOSBalance)
 Insert into @t values (28,@CurrentWAX,@WAXBalance,@CurrentWAX - @WAXBalance)
 Insert into @t values (29,@CurrentXLM,@XLMBalance,@CurrentXLM - @XLMBalance)
+Insert into @t values (30,@CurrentTRIA,@TRIABalance,@CurrentTRIA - @TRIABalance)
+Insert into @t values (31,@CurrentBEZ,@BEZBalance,@CurrentBEZ - @BEZBalance)
+Insert into @t values (32,@CurrentSLRM,@SLRMBalance,@CurrentSLRM - @SLRMBalance)
 select * from @t
 END
 

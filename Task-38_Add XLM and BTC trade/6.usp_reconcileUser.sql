@@ -1,6 +1,6 @@
 USE [cnx]
 GO
-/****** Object:  StoredProcedure [dbo].[usp_reconcileUser]    Script Date: 2018/05/17 16:15:37 ******/
+/****** Object:  StoredProcedure [dbo].[usp_reconcileUser]    Script Date: 2018/05/23 15:05:00 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -577,8 +577,8 @@ left join OrderBook O with(nolock) on T.B_OrderId = O.OrderId
 where O.CustomerId = @CustomerId and O.OrderTypeId = 2 and OfferAssetTypeId = 28
 ----------------------------------------------------------------------------------------------------------------------------------------------
 --XLM
-select @XLMBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 28
-select @UsedXLM = isnull(SUM(value),0) from Voucher with(nolock) where IsRedeemed = 1 and IssuedByCustomerId = @CustomerId and AssetTypeId = 28
+select @XLMBalance= isnull(SUM(Value),0) from Voucher with(nolock) where RedeemedByCustomerId = @CustomerId and AssetTypeId = 29
+select @UsedXLM = isnull(SUM(value),0) from Voucher with(nolock) where IsRedeemed = 1 and IssuedByCustomerId = @CustomerId and AssetTypeId = 29
 set @XLMBalance  = @XLMBalance - @UsedXLM
 -- Deposit
 select @XLMBalance = @XLMBalance + isnull(sum(Amount),0) - isnull(sum(Commision),0) from TransferRequest with (nolock)
@@ -629,7 +629,7 @@ select @CurrentRCN = balance from AssetBalance with(nolock) where CustomerId = @
 select @CurrentXRP = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 25
 select @CurrentEOS = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 26
 select @CurrentWAX = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 28
-select @CurrentWAX = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 29
+select @CurrentXLM = balance from AssetBalance with(nolock) where CustomerId = @customerId and AssetTypeId = 29
 
 declare @t table
 (
@@ -665,6 +665,8 @@ Insert into @t values (24,@CurrentRCN,@RCNBalance,@CurrentRCN - @RCNBalance)
 Insert into @t values (25,@CurrentXRP,@XRPBalance,@CurrentXRP - @XRPBalance)
 Insert into @t values (26,@CurrentEOS,@EOSBalance,@CurrentEOS - @EOSBalance)
 Insert into @t values (28,@CurrentWAX,@WAXBalance,@CurrentWAX - @WAXBalance)
-Insert into @t values (28,@CurrentXLM,@XLMBalance,@CurrentXLM - @XLMBalance)
+Insert into @t values (29,@CurrentXLM,@XLMBalance,@CurrentXLM - @XLMBalance)
 select * from @t
 END
+
+
