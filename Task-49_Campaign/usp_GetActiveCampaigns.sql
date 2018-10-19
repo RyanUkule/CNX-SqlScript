@@ -21,6 +21,9 @@ BEGIN
       ,[RewardAssetTypeId]
       ,[RewardAmount]
 	  ,[Description]
+	  ,[DependCampaignId]
+	  ,[CampaignTypeId]
+	  ,[CustomerTypeId]
       ,[Active]
   FROM [cnx].[dbo].[Campaign] with(nolock)
   where Active = 1
