@@ -42,10 +42,11 @@ GO
 			  [ExchangeSetting].MinOnTradeVolume,
 			  [ExchangeSetting].MaxOnTradeVolume,
 			  [ExchangeSetting].QuantityPercentage,
-			  [ExchangeSetting].CommissionAssetTypeId
+			  [ExchangeSetting].CommissionAssetTypeId,
+			  [ExchangeSetting].PlatformId
 		  FROM [cnx].[dbo].[ExchangeSetting] with (nolock)
 		  left join Exchanges with(nolock) on ExchangeSetting.ExchangeId = Exchanges.ExchangeId
-		  where [ExchangeSetting].Active = 1 and Exchanges.Active = 1
+		  where [ExchangeSetting].Active = 1 and Exchanges.Active = 1 and PlatformId = 1
 	END
 
 	/****** Object:  StoredProcedure [dbo].[usp_loadAllExchangeSettings]    Script Date: 2016/10/11 16:40:56 ******/

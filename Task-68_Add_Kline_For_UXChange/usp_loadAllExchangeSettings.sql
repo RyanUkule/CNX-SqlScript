@@ -43,6 +43,7 @@ BEGIN
 	,MinOnTradeVolume
 	,MaxOnTradeVolume
 	,QuantityPercentage
+	,PlatformId
    FROM [cnx].[dbo].[ExchangeSetting] with (nolock)  
    --where Active = 1  
 END  
